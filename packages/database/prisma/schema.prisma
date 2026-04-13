@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Station {
+  stn_id          String        @id
+  name            String
+  organization_cd String
+  lat             Float?
+  lot             Float?
+  created_at      DateTime      @default(now())
+  observations    Observation[]
+
+  @@index([organization_cd])
+  @@map("station")
+}
+
+model Observation {
+  stn_id          String
+  obs_cd          String
+  obs_time        DateTime  @db.Timestamptz(6)
+  value           Float
+  unit            String
+  organization_cd String
+  station         Station   @relation(fields: [stn_id], references: [stn_id])
+
+  @@id([stn_id, obs_cd, obs_time])
+  @@index([obs_cd, obs_time])
+  @@index([organization_cd, obs_time])
+  @@map("observation")
+}
