@@ -1,0 +1,21 @@
+{
+  "name": "kors-relv-collector",
+  "version": "0.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev:dashboard": "pnpm --filter @kors-relv/dashboard dev",
+    "collect": "pnpm --filter @kors-relv/collect start",
+    "db:generate": "pnpm --filter @kors-relv/database prisma generate",
+    "db:migrate": "pnpm --filter @kors-relv/database prisma migrate dev",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.0",
+    "prisma": "^5.22.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

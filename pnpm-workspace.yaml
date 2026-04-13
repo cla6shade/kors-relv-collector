@@ -1,0 +1,11 @@
+packages:
+  - packages/*
+  - apps/*
+
+enablePrePostScripts: true
+
+onlyBuiltDependencies:
+  - "@prisma/client"
+  - "@prisma/engines"
+  - prisma
+  - esbuild
