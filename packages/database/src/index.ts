@@ -1,3 +1,3 @@
-export { prisma } from "./client.js";
-export { Prisma, PrismaClient } from "@prisma/client";
-export type { Station, Observation } from "@prisma/client";
+export { prisma } from "./client";
+export { Prisma, PrismaClient, StationType } from "./generated/prisma";
+export type { Station, Observation } from "./generated/prisma";
