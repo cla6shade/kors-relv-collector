@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@kors-relv/collect": "workspace:*",
     "@kors-relv/database": "workspace:*",
     "next": "^15.0.3",
     "react": "^19.0.0",
