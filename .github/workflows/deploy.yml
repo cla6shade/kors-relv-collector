@@ -1,0 +1,94 @@
+name: Build and Deploy Dashboard
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Enable corepack and setup pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.12.4 --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Inject Dashboard .env
+        run: printenv DASHBOARD_ENV_FILE > ./apps/dashboard/.env
+        env:
+          DASHBOARD_ENV_FILE: ${{ secrets.DASHBOARD_ENV_FILE }}
+
+      - name: Build Next.js dashboard
+        run: pnpm build
+
+      - name: Stop PM2 process
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            export PATH=${{ secrets.NVM_PATH }}:$PATH
+            pm2 stop kors-relv-dashboard || true
+
+      - name: Clean deploy directory
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            mkdir -p ${{ secrets.DASHBOARD_DEPLOY_PATH }}
+            find ${{ secrets.DASHBOARD_DEPLOY_PATH }} -mindepth 1 -maxdepth 1 \
+              -not -name 'node_modules' \
+              -not -name '.collect-cron.log' \
+              -exec rm -rf {} +
+
+      - name: Deploy files via SCP
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "./*,!./node_modules,!./**/node_modules"
+          target: ${{ secrets.DASHBOARD_DEPLOY_PATH }}
+
+      - name: Install prod deps, generate Prisma, (re)start PM2
+        uses: appleboy/ssh-action@v1.2.5
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            export PATH=${{ secrets.NVM_PATH }}:$PATH
+            export PORT=3002
+            export NODE_ENV=production
+            cd ${{ secrets.DASHBOARD_DEPLOY_PATH }}
+            pnpm install --prod --frozen-lockfile
+            pnpm db:generate
+            pm2 restart kors-relv-dashboard --update-env \
+              || pm2 start pnpm --name kors-relv-dashboard \
+                   --cwd "${{ secrets.DASHBOARD_DEPLOY_PATH }}/apps/dashboard" \
+                   -- start
+            pm2 save
