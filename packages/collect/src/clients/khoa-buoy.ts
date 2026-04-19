@@ -1,30 +1,19 @@
 import { config } from "../config.js";
-
-const ENDPOINT =
-  "https://apis.data.go.kr/1192136/twRecent/GetTWRecentApiService/getTWRecentApi";
-
-export interface KhoaBuoyItem {
-  obsvtrNm?: string;
-  lot?: string;
-  lat?: string;
-  obsrvnDt?: string;
-  [field: string]: string | undefined;
-}
+import { ENDPOINTS, type KhoaBuoyItem, unwrapKhoa } from "../api-schema.js";
 
 export interface KhoaBuoyResponse {
   items: KhoaBuoyItem[];
 }
 
 export async function fetchBuoy(obsCode: string, reqDate?: string): Promise<KhoaBuoyResponse> {
-  const url = new URL(ENDPOINT);
-  url.searchParams.set("serviceKey", config.requireKhoa());
-  url.searchParams.set("obsCode", obsCode);
-  url.searchParams.set("type", "json");
-  if (reqDate) url.searchParams.set("reqDate", reqDate);
+  const params = new URLSearchParams();
+  params.set("obsCode", obsCode);
+  params.set("type", "json");
+  if (reqDate) params.set("reqDate", reqDate);
 
-  const res = await fetch(url);
+  const res = await fetch(
+    `${ENDPOINTS.khoaBuoy}?serviceKey=${config.requireKhoa()}&${params}`,
+  );
   if (!res.ok) throw new Error(`KHOA buoy ${res.status}`);
-  const json = (await res.json()) as { response?: { body?: { items?: { item?: KhoaBuoyItem[] } } } };
-  const items = json.response?.body?.items?.item ?? [];
-  return { items };
+  return { items: unwrapKhoa<KhoaBuoyItem>(await res.json()) };
 }

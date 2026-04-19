@@ -3,35 +3,43 @@ import { collectKhoaBuoy, collectKhoaTidal, collectKmaSea } from "./jobs/collect
 const HELP = `kors-relv-collect
 
 Usage:
-  collect khoa-buoy <obsCode>     # e.g. TW_0089
-  collect khoa-tidal <obsCode>    # e.g. DT_0001
-  collect kma-sea                 # all stations, latest tm
+  collect khoa-buoy     # all buoy stations
+  collect khoa-tidal    # all tidal stations
+  collect kma-sea       # all KMA sea stations
   collect --help
 `;
 
 async function main(): Promise<void> {
-  const [cmd, arg] = process.argv.slice(2);
-  if (!cmd || cmd === "--help" || cmd === "-h") {
+  const [cmd] = process.argv.slice(2);
+  if (cmd === "--help" || cmd === "-h") {
     process.stdout.write(HELP);
     return;
   }
 
   switch (cmd) {
     case "khoa-buoy": {
-      if (!arg) throw new Error("khoa-buoy requires <obsCode>");
-      const n = await collectKhoaBuoy(arg);
-      console.log(`khoa-buoy ${arg}: ${n} rows`);
+      const n = await collectKhoaBuoy();
+      console.log(`khoa-buoy total: ${n} rows`);
       return;
     }
     case "khoa-tidal": {
-      if (!arg) throw new Error("khoa-tidal requires <obsCode>");
-      const n = await collectKhoaTidal(arg);
-      console.log(`khoa-tidal ${arg}: ${n} rows`);
+      const n = await collectKhoaTidal();
+      console.log(`khoa-tidal total: ${n} rows`);
       return;
     }
     case "kma-sea": {
       const n = await collectKmaSea();
       console.log(`kma-sea: ${n} rows`);
+      return;
+    }
+    case undefined: {
+      const buoy = await collectKhoaBuoy();
+      console.log(`khoa-buoy total: ${buoy} rows`);
+      const tidal = await collectKhoaTidal();
+      console.log(`khoa-tidal total: ${tidal} rows`);
+      const kma = await collectKmaSea();
+      console.log(`kma-sea: ${kma} rows`);
+      console.log(`total: ${buoy + tidal + kma} rows`);
       return;
     }
     default:
