@@ -18,6 +18,22 @@ export interface ObsSpec {
   unit: string;
 }
 
+export const OBS_LABELS: Record<ObsCode, string> = {
+  wtem: "수온",
+  slnty: "염분",
+  atmp: "기온",
+  atmpr: "기압",
+  humi: "습도",
+  wndrct: "풍향",
+  wspd: "풍속",
+  wspd_gst: "최대순간풍속",
+  wvhgt: "파고",
+  wvpd: "파주기",
+  crdir: "유향",
+  crsp: "유속",
+  tdlv_obs: "조위",
+};
+
 export const KHOA_BUOY_FIELDS: Record<string, ObsSpec> = {
   wtem: { obs_cd: "wtem", unit: "℃" },
   slnty: { obs_cd: "slnty", unit: "psu" },
