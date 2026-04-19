@@ -23,6 +23,9 @@ importers:
 
   apps/dashboard:
     dependencies:
+      '@kors-relv/collect':
+        specifier: workspace:*
+        version: link:../../packages/collect
       '@kors-relv/database':
         specifier: workspace:*
         version: link:../../packages/database
