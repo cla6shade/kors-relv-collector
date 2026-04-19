@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { defineConfig, env } from "prisma/config";
+import { defineConfig } from "prisma/config";
 
 const isDeploy = process.argv.includes("deploy");
 const urlVar = isDeploy ? "DATABASE_URL_PRODUCTION" : "DATABASE_URL";
@@ -10,6 +10,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: env(urlVar),
+    url: process.env[urlVar],
   },
 });
