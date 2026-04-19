@@ -2,3 +2,7 @@ beautifulsoup4==4.14.3
 markdownify==1.2.2
 pyhwp==0.1b15
 six==1.17.0
+selenium>=4.20
+webdriver-manager>=4.0
+requests>=2.31
+python-dotenv>=1.0
