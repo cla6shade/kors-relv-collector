@@ -1,3 +1,50 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --paper: oklch(0.985 0.006 225);
+  --surface: oklch(1 0 0);
+  --rule: oklch(0.90 0.012 225);
+  --rule-strong: oklch(0.34 0.03 240);
+  --ink: oklch(0.22 0.03 245);
+  --ink-soft: oklch(0.42 0.02 235);
+  --muted: oklch(0.55 0.015 230);
+  --accent: oklch(0.42 0.13 215);
+  --accent-soft: oklch(0.96 0.025 215);
+  --warn: oklch(0.62 0.16 65);
+  --warn-soft: oklch(0.97 0.04 80);
+  --font-sans: "Pretendard Variable", Pretendard, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Menlo", monospace;
+}
+
+html {
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.rule-editorial {
+  border-top: 2px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule-strong);
+  height: 5px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
