@@ -5,8 +5,7 @@ build/
 *.tsbuildinfo
 
 .env
-.env.local
-.env.*.local
+.env.*
 
 .venv/
 __pycache__/
@@ -15,3 +14,8 @@ __pycache__/
 .DS_Store
 .idea/
 .vscode/
+
+/db
+.claude/settings.local.json
+
+packages/database/src/generated/
