@@ -10,6 +10,7 @@
     "collect": "pnpm --filter @kors-relv/collect start",
     "db:generate": "pnpm --filter @kors-relv/database prisma generate",
     "db:migrate": "pnpm --filter @kors-relv/database prisma migrate dev",
+    "db:migrate:deploy": "pnpm --filter @kors-relv/database migrate:deploy",
     "typecheck": "pnpm -r typecheck"
   },
   "devDependencies": {
