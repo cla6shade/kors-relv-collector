@@ -264,7 +264,7 @@ export default async function Page({
             </nav>
           </div>
 
-          <form method="get" action={`/${src}`} className="flex items-end gap-3">
+          <form method="get" className="flex items-end gap-3">
             <label className="flex flex-col gap-2">
               <span className="eyebrow">조회 기간</span>
               <div className="flex items-stretch border border-rule bg-surface focus-within:border-ink">
