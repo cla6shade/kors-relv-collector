@@ -9,6 +9,9 @@ export async function fetchBuoy(obsCode: string, reqDate?: string): Promise<Khoa
   const params = new URLSearchParams();
   params.set("obsCode", obsCode);
   params.set("type", "json");
+  params.set("min", "60");
+  params.set("numOfRows", "1");
+  params.set("pageNo", "1");
   if (reqDate) params.set("reqDate", reqDate);
 
   const res = await fetch(

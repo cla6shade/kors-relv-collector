@@ -1,4 +1,4 @@
-import { prisma, StationType, type Prisma } from "@kors-relv/database";
+import { prisma, StationType, Organization, type Prisma } from "@kors-relv/database";
 import { fetchBuoy } from "../clients/khoa-buoy.js";
 import { fetchTidal } from "../clients/khoa-tidal.js";
 import { fetchKmaSea } from "../clients/kma-sea.js";
@@ -31,14 +31,15 @@ function parseKmaTime(s: string): Date {
 async function ensureStation(
   stn_id: string,
   name: string,
+  organization_cd: Organization,
   stn_type: StationType,
   lat?: number | null,
   lot?: number | null,
 ): Promise<void> {
   await prisma.station.upsert({
     where: { stn_id },
-    update: { name, stn_type, lat: lat ?? null, lot: lot ?? null },
-    create: { stn_id, name, stn_type, lat: lat ?? null, lot: lot ?? null },
+    update: { name, organization_cd, stn_type, lat: lat ?? null, lot: lot ?? null },
+    create: { stn_id, name, organization_cd, stn_type, lat: lat ?? null, lot: lot ?? null },
   });
 }
 
@@ -75,6 +76,7 @@ export async function collectKhoaBuoy(): Promise<number> {
         await ensureStation(
           obsCode,
           first.obsvtrNm ?? obsCode,
+          Organization.KHOA,
           StationType.BUOY,
           first.lat != null ? Number(first.lat) : null,
           first.lot != null ? Number(first.lot) : null,
@@ -107,6 +109,7 @@ export async function collectKhoaTidal(): Promise<number> {
         await ensureStation(
           obsCode,
           first.obsvtrNm ?? obsCode,
+          Organization.KHOA,
           StationType.TIDAL,
           first.lat != null ? Number(first.lat) : null,
           first.lot != null ? Number(first.lot) : null,
@@ -150,6 +153,7 @@ export async function collectKmaSea(): Promise<number> {
     await ensureStation(
       r.STN_ID,
       r.STN_KO ?? r.STN_ID,
+      Organization.KMA,
       kmaStationType(r.STN_ID),
     );
   }

@@ -18,7 +18,15 @@ export interface KhoaTidalItem {
   lot?: string;
   obsrvnDt?: string;
   bscTdlvHgt?: string;
-  tdlvHgt?: string;
+  wndrct?: string;
+  wspd?: string;
+  maxMmntWspd?: string;
+  artmp?: string;
+  atmpr?: string;
+  wtem?: string;
+  slntQty?: string;
+  crdir?: string;
+  crsp?: string;
 }
 
 type KhoaEnvelope<T> = {
@@ -60,7 +68,7 @@ const KMA_SEA_NUMERIC_FIELDS: Array<keyof KmaSeaRow> = [
  * KMA 응답은 CSV 형식:
  * - `#`으로 시작하는 줄은 메타/헤더
  * - 데이터 줄: `TP, TM, STN_ID, STN_KO, LON, LAT, WH, WD, WS, WS_GST, TW, TA, PA, HM, ..., =`
- * - 결측값: `-9`, `-99`
+ * - 결측값: `-99` 또는 `-99.0`
  */
 export function parseKmaSea(text: string): KmaSeaRow[] {
   const lines = text.split(/\r?\n/);
@@ -93,9 +101,11 @@ export function parseKmaSea(text: string): KmaSeaRow[] {
 
     for (const field of KMA_SEA_NUMERIC_FIELDS) {
       const val = map[field];
-      if (val === undefined || val === "" || val === "-9" || val === "-99") continue;
+      if (val === undefined || val === "") continue;
       const n = Number(val);
-      if (Number.isFinite(n)) (row as Record<string, number>)[field] = n;
+      if (!Number.isFinite(n)) continue;
+      if (n === -99) continue;
+      (row as Record<string, number>)[field] = n;
     }
 
     rows.push(row as KmaSeaRow);

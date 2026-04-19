@@ -11,8 +11,7 @@ export type ObsCode =
   | "wvpd"
   | "crdir"
   | "crsp"
-  | "tdlv_obs"
-  | "tdlv_pred";
+  | "tdlv_obs";
 
 export interface ObsSpec {
   obs_cd: ObsCode;
