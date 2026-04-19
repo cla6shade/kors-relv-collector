@@ -17,9 +17,15 @@ enum StationType {
   MARINE
 }
 
+enum Organization {
+  KHOA
+  KMA
+}
+
 model Station {
   stn_id          String        @id
   name            String
+  organization_cd Organization
   stn_type        StationType
   lat             Float?
   lot             Float?
@@ -27,6 +33,7 @@ model Station {
   observations    Observation[]
 
   @@index([stn_type])
+  @@index([organization_cd])
   @@map("station")
 }
 
