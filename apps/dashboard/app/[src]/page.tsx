@@ -127,7 +127,7 @@ async function loadSource(src: Source, hours: number): Promise<StationBucket[]> 
 }
 
 async function loadTotals() {
-  const [stations, observations, latest, byOrg] = await Promise.all([
+  const [stations, observations, latest, byOrg, sizeRows] = await Promise.all([
     prisma.station.count(),
     prisma.observation.count(),
     prisma.observation.findFirst({ orderBy: { obs_time: "desc" }, select: { obs_time: true } }),
@@ -138,8 +138,35 @@ async function loadTotals() {
       GROUP BY s.organization_cd
       ORDER BY s.organization_cd
     `,
+    prisma.$queryRaw<Array<{ db_bytes: bigint; obs_bytes: bigint }>>`
+      SELECT
+        pg_database_size(current_database())::bigint AS db_bytes,
+        pg_total_relation_size('observation')::bigint AS obs_bytes
+    `,
   ]);
-  return { stations, observations, latest: latest?.obs_time ?? null, byOrg };
+  const dbBytes = Number(sizeRows[0]?.db_bytes ?? 0n);
+  const obsBytes = Number(sizeRows[0]?.obs_bytes ?? 0n);
+  return {
+    stations,
+    observations,
+    latest: latest?.obs_time ?? null,
+    byOrg,
+    dbBytes,
+    obsBytes,
+  };
+}
+
+function formatBytes(bytes: number): { value: string; unit: string } {
+  if (!bytes || bytes < 1024) return { value: bytes.toString(), unit: "B" };
+  const units = ["KB", "MB", "GB", "TB"] as const;
+  let v = bytes / 1024;
+  let i = 0;
+  while (v >= 1024 && i < units.length - 1) {
+    v /= 1024;
+    i++;
+  }
+  const value = v >= 100 ? v.toFixed(0) : v >= 10 ? v.toFixed(1) : v.toFixed(2);
+  return { value, unit: units[i]! };
 }
 
 function isSource(v: string): v is Source {
@@ -207,22 +234,37 @@ export default async function Page({
         </div>
       )}
 
-      {totals && (
-        <section className="mb-12">
-          <div className="grid grid-cols-2 gap-x-8 gap-y-6 md:grid-cols-4 md:divide-x md:divide-rule">
-            <Figure label="관측소" value={totals.stations.toLocaleString()} />
-            <Figure label="관측 레코드" value={totals.observations.toLocaleString()} indent />
-            {totals.byOrg.map((r) => (
+      {totals && (() => {
+        const dbSize = formatBytes(totals.dbBytes);
+        const obsSize = formatBytes(totals.obsBytes);
+        return (
+          <section className="mb-12">
+            <div className="grid grid-cols-2 gap-x-8 gap-y-6 md:grid-cols-3 lg:grid-cols-5 md:divide-x md:divide-rule">
+              <Figure label="관측소" value={totals.stations.toLocaleString()} />
               <Figure
-                key={r.organization_cd}
-                label={ORG_LABELS[r.organization_cd] ?? r.organization_cd}
-                value={Number(r.count).toLocaleString()}
+                label="관측 레코드"
+                value={totals.observations.toLocaleString()}
                 indent
               />
-            ))}
-          </div>
-        </section>
-      )}
+              {totals.byOrg.map((r) => (
+                <Figure
+                  key={r.organization_cd}
+                  label={ORG_LABELS[r.organization_cd] ?? r.organization_cd}
+                  value={Number(r.count).toLocaleString()}
+                  indent
+                />
+              ))}
+              <Figure
+                label="데이터 용량"
+                value={dbSize.value}
+                unit={dbSize.unit}
+                sub={`obs ${obsSize.value} ${obsSize.unit}`}
+                indent
+              />
+            </div>
+          </section>
+        );
+      })()}
 
       <section className="mb-10">
         <div className="flex flex-wrap items-end gap-x-8 gap-y-5">
@@ -390,18 +432,34 @@ function StationBlock({
 function Figure({
   label,
   value,
+  unit,
+  sub,
   indent = false,
 }: {
   label: string;
   value: string;
+  unit?: string;
+  sub?: string;
   indent?: boolean;
 }) {
   return (
     <div className={indent ? "md:pl-8" : ""}>
       <div className="eyebrow mb-2">{label}</div>
-      <div className="font-display text-[2.6rem] leading-none tracking-tight text-ink tabular">
-        {value}
+      <div className="flex items-baseline gap-1.5">
+        <span className="font-display text-[2.6rem] leading-none tracking-tight text-ink tabular">
+          {value}
+        </span>
+        {unit && (
+          <span className="font-mono text-xs uppercase tracking-[0.16em] text-muted">
+            {unit}
+          </span>
+        )}
       </div>
+      {sub && (
+        <div className="mt-2 font-mono text-[11px] uppercase tracking-[0.14em] text-muted tabular">
+          {sub}
+        </div>
+      )}
     </div>
   );
 }
