@@ -15,6 +15,7 @@ enum StationType {
   SPECIAL
   LIGHTHOUSE
   MARINE
+  ORS
 }
 
 enum Organization {

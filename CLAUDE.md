@@ -10,7 +10,7 @@ Korean ocean/sea observation data collector and dashboard. Fetches data from two
 
 pnpm@10 workspace (`pnpm-workspace.yaml`) with three packages:
 
-- **`packages/database`** (`@kors-relv/database`) — Prisma 7 schema and generated client (output: `src/generated/prisma`). Uses `prisma.config.ts` for config. Two models: `Station` (PK: `stn_id`) and `Observation` (composite PK: `stn_id + obs_cd + obs_time`). `StationType` enum: BUOY, TIDAL, COASTAL, FISHING, SPECIAL, LIGHTHOUSE, MARINE. Exports singleton `prisma` client and Prisma types.
+- **`packages/database`** (`@kors-relv/database`) — Prisma 7 schema and generated client (output: `src/generated/prisma`). Uses `prisma.config.ts` for config. Two models: `Station` (PK: `stn_id`) and `Observation` (composite PK: `stn_id + obs_cd + obs_time`). `StationType` enum: BUOY, TIDAL, COASTAL, FISHING, SPECIAL, LIGHTHOUSE, MARINE, ORS. Exports singleton `prisma` client and Prisma types.
 - **`packages/collect`** (`@kors-relv/collect`) — CLI that fetches from KHOA buoy, KHOA tidal, and KMA sea APIs. API clients in `src/clients/`, job orchestration in `src/jobs/collect-latest.ts`, station lists in `src/stations.ts`, field-to-observation mapping in `src/obs-codes.ts`, env config in `src/config.ts`. Running with no args executes all three collectors.
 - **`apps/dashboard`** (`@kors-relv/dashboard`) — Next.js 15 app (App Router, React 19, Tailwind CSS). Uses `@/*` path alias. Imports `@kors-relv/database` via `transpilePackages` in `next.config.mjs`.
 
