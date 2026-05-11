@@ -35,6 +35,11 @@ jobs:
         env:
           DASHBOARD_ENV_FILE: ${{ secrets.DASHBOARD_ENV_FILE }}
 
+      - name: Inject Collect .env
+        run: printenv COLLECT_ENV_FILE > ./packages/collect/.env
+        env:
+          COLLECT_ENV_FILE: ${{ secrets.COLLECT_ENV_FILE }}
+
       - name: Build Next.js dashboard
         run: pnpm build
 
@@ -85,7 +90,7 @@ jobs:
             export PORT=3002
             export NODE_ENV=production
             cd ${{ secrets.DASHBOARD_DEPLOY_PATH }}
-            pnpm install --prod --frozen-lockfile
+            pnpm install --frozen-lockfile
             pnpm db:generate
             pm2 restart kors-relv-dashboard --update-env \
               || pm2 start pnpm --name kors-relv-dashboard \
