@@ -15,7 +15,7 @@ description: >
 
 ## 목적
 
-공공 API(KHOA 부이·조위, KMA 해양관측)의 명세 변경을 반자동으로 감지하고 `packages/collect/` 내부 코드와 `docs/*.md`에 반영합니다.근ㄷ
+공공 API(KHOA 부이·조위, KMA 해양관측)의 명세 변경을 반자동으로 감지하고 `packages/collect/` 내부 코드와 `docs/*.md`에 반영합니다.
 
 ## 사전 준비
 
