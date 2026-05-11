@@ -28,7 +28,7 @@ const OBS_COLORS: Record<ObsCode, string> = {
   tdlv_obs: "oklch(0.55 0.14 165)",
 };
 
-type Source = "khoa-buoy" | "khoa-tidal" | "kma-sea";
+type Source = "khoa-buoy" | "khoa-tidal" | "khoa-ors" | "kma-sea";
 
 const SOURCES: Array<{
   key: Source;
@@ -54,6 +54,14 @@ const SOURCES: Array<{
     series: "조위관측소",
     short: "TIDAL",
   },
+  {
+    key: "khoa-ors",
+    org: "KHOA",
+    type: "ORS",
+    agency: "해양조사원",
+    series: "해양과학기지",
+    short: "ORS",
+  },
   { key: "kma-sea", org: "KMA", agency: "기상청", series: "해양종합관측", short: "MARINE" },
 ];
 
@@ -65,6 +73,7 @@ const ORG_LABELS: Record<string, string> = {
 const SOURCE_FIELDS: Record<Source, Record<string, { obs_cd: ObsCode; unit: string }>> = {
   "khoa-buoy": KHOA_BUOY_FIELDS,
   "khoa-tidal": KHOA_TIDAL_FIELDS,
+  "khoa-ors": KHOA_TIDAL_FIELDS,
   "kma-sea": KMA_SEA_FIELDS,
 };
 
@@ -170,7 +179,7 @@ function formatBytes(bytes: number): { value: string; unit: string } {
 }
 
 function isSource(v: string): v is Source {
-  return v === "khoa-buoy" || v === "khoa-tidal" || v === "kma-sea";
+  return v === "khoa-buoy" || v === "khoa-tidal" || v === "khoa-ors" || v === "kma-sea";
 }
 
 export default async function Page({
