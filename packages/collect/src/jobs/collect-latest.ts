@@ -110,7 +110,7 @@ export async function collectKhoaTidal(): Promise<number> {
           obsCode,
           first.obsvtrNm ?? obsCode,
           Organization.KHOA,
-          StationType.TIDAL,
+          khoaTidalStationType(obsCode),
           first.lat != null ? Number(first.lat) : null,
           first.lot != null ? Number(first.lot) : null,
         );
@@ -130,6 +130,10 @@ export async function collectKhoaTidal(): Promise<number> {
     }
   }
   return total;
+}
+
+function khoaTidalStationType(obsCode: string): StationType {
+  return obsCode.startsWith("IE_") ? StationType.ORS : StationType.TIDAL;
 }
 
 function kmaStationType(stnId: string): StationType {
