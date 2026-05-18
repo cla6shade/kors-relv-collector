@@ -29,7 +29,7 @@ model Station {
   organization_cd Organization
   stn_type        StationType
   lat             Float?
-  lot             Float?
+  lon             Float?
   created_at      DateTime      @default(now())
   observations    Observation[]
 

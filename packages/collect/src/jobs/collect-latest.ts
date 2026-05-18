@@ -34,12 +34,12 @@ async function ensureStation(
   organization_cd: Organization,
   stn_type: StationType,
   lat?: number | null,
-  lot?: number | null,
+  lon?: number | null,
 ): Promise<void> {
   await prisma.station.upsert({
     where: { stn_id },
-    update: { name, organization_cd, stn_type, lat: lat ?? null, lot: lot ?? null },
-    create: { stn_id, name, organization_cd, stn_type, lat: lat ?? null, lot: lot ?? null },
+    update: { name, organization_cd, stn_type, lat: lat ?? null, lon: lon ?? null },
+    create: { stn_id, name, organization_cd, stn_type, lat: lat ?? null, lon: lon ?? null },
   });
 }
 
