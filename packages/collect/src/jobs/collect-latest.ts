@@ -159,6 +159,8 @@ export async function collectKmaSea(): Promise<number> {
       r.STN_KO ?? r.STN_ID,
       Organization.KMA,
       kmaStationType(r.STN_ID),
+      r.LAT ?? null,
+      r.LON ?? null,
     );
   }
 

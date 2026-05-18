@@ -43,6 +43,8 @@ export interface KmaSeaRow {
   STN_ID: string;
   STN_KO?: string;
   TM: string;
+  LON?: number;
+  LAT?: number;
   WH?: number;
   WD?: number;
   WS?: number;
@@ -54,6 +56,8 @@ export interface KmaSeaRow {
 }
 
 const KMA_SEA_NUMERIC_FIELDS: Array<keyof KmaSeaRow> = [
+  "LON",
+  "LAT",
   "WH",
   "WD",
   "WS",
