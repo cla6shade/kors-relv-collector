@@ -80,6 +80,8 @@ const SOURCE_FIELDS: Record<Source, Record<string, { obs_cd: ObsCode; unit: stri
 interface Row {
   stn_id: string;
   name: string;
+  lat: number | null;
+  lon: number | null;
   obs_cd: string;
   obs_time: Date;
   value: number;
@@ -89,6 +91,8 @@ interface Row {
 interface StationBucket {
   stn_id: string;
   name: string;
+  lat: number | null;
+  lon: number | null;
   byObs: Map<string, { unit: string; points: { t: number; v: number }[] }>;
   latest: number;
 }
@@ -99,7 +103,7 @@ async function loadSource(src: Source, hours: number): Promise<StationBucket[]> 
 
   const rows = cfg.type
     ? await prisma.$queryRaw<Row[]>`
-        SELECT s.stn_id, s.name, o.obs_cd, o.obs_time, o.value, o.unit
+        SELECT s.stn_id, s.name, s.lat, s.lon, o.obs_cd, o.obs_time, o.value, o.unit
         FROM observation o
         JOIN station s ON s.stn_id = o.stn_id
         WHERE o.obs_time >= ${since}
@@ -108,7 +112,7 @@ async function loadSource(src: Source, hours: number): Promise<StationBucket[]> 
         ORDER BY s.stn_id, o.obs_cd, o.obs_time ASC
       `
     : await prisma.$queryRaw<Row[]>`
-        SELECT s.stn_id, s.name, o.obs_cd, o.obs_time, o.value, o.unit
+        SELECT s.stn_id, s.name, s.lat, s.lon, o.obs_cd, o.obs_time, o.value, o.unit
         FROM observation o
         JOIN station s ON s.stn_id = o.stn_id
         WHERE o.obs_time >= ${since}
@@ -120,7 +124,14 @@ async function loadSource(src: Source, hours: number): Promise<StationBucket[]> 
   for (const r of rows) {
     let st = map.get(r.stn_id);
     if (!st) {
-      st = { stn_id: r.stn_id, name: r.name, byObs: new Map(), latest: 0 };
+      st = {
+        stn_id: r.stn_id,
+        name: r.name,
+        lat: r.lat,
+        lon: r.lon,
+        byObs: new Map(),
+        latest: 0,
+      };
       map.set(r.stn_id, st);
     }
     let series = st.byObs.get(r.obs_cd);
@@ -387,15 +398,27 @@ function StationBlock({
 }) {
   const obsEntries = [...station.byObs.entries()].sort(([a], [b]) => a.localeCompare(b));
   const totalPoints = obsEntries.reduce((acc, [, s]) => acc + s.points.length, 0);
+  const coord = formatCoord(station.lat, station.lon);
   return (
     <article>
       <header className="mb-4 flex flex-wrap items-end justify-between gap-y-2 gap-x-6 border-b border-rule-strong pb-2">
-        <div className="flex items-baseline gap-3">
-          <span className="font-mono text-xs text-muted tabular">
-            № {String(index).padStart(2, "0")}
-          </span>
-          <h3 className="text-lg font-semibold leading-none text-ink">{station.name}</h3>
-          <span className="font-mono text-xs text-muted tabular">{station.stn_id}</span>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-baseline gap-3">
+            <span className="font-mono text-xs text-muted tabular">
+              № {String(index).padStart(2, "0")}
+            </span>
+            <h3 className="text-lg font-semibold leading-none text-ink">{station.name}</h3>
+            <span className="font-mono text-xs text-muted tabular">{station.stn_id}</span>
+          </div>
+          {coord ? (
+            <span className="font-mono text-[11px] tracking-[0.1em] text-ink-soft tabular">
+              {coord}
+            </span>
+          ) : (
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted">
+              좌표 미등록
+            </span>
+          )}
         </div>
         <div className="flex items-baseline gap-5 text-xs text-muted">
           <span>
@@ -471,6 +494,13 @@ function Figure({
       )}
     </div>
   );
+}
+
+function formatCoord(lat: number | null, lon: number | null): string | null {
+  if (lat == null || lon == null) return null;
+  const ns = lat >= 0 ? "N" : "S";
+  const ew = lon >= 0 ? "E" : "W";
+  return `${Math.abs(lat).toFixed(4)}°${ns}  ${Math.abs(lon).toFixed(4)}°${ew}`;
 }
 
 function formatKst(d: Date): string {
