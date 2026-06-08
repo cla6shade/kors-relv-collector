@@ -50,3 +50,16 @@ model Observation {
   @@index([obs_cd, obs_time])
   @@map("observation")
 }
+
+model StationVariable {
+  id         Int      @id @default(autoincrement())
+  stn_id     String
+  obs_cd     String
+  label      String
+  unit       String
+  updated_at DateTime @updatedAt
+
+  @@unique([stn_id, obs_cd])
+  @@index([obs_cd])
+  @@map("station_variable")
+}
