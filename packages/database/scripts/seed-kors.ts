@@ -4,7 +4,11 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { parse } from "csv-parse/sync";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../src/generated/prisma/index.js";
+import {
+  PrismaClient,
+  Organization,
+  StationType,
+} from "../src/generated/prisma/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CSV_PATH = join(__dirname, "kors-variables.csv");
@@ -17,7 +21,7 @@ if (!databaseUrl) {
   throw new Error(`missing env var: ${urlVar}`);
 }
 
-type Row = { stn_id: string; obs_cd: string; label: string };
+type Row = { stn_id: string; obs_cd: string; label: string; name: string };
 
 function loadRows(): { rows: Row[]; skipped: number } {
   const records = parse(readFileSync(CSV_PATH), {
@@ -34,13 +38,14 @@ function loadRows(): { rows: Row[]; skipped: number } {
     const stn_id = rec["Station ID"] ?? "";
     const obs_cd = rec["관측변수(OPENSEARCH tagId)"] ?? "";
     const label = rec["의미(측정항목)"] ?? "";
+    const name = rec["관측소"] ?? "";
 
     if (!stn_id || !obs_cd) {
       skipped++;
       continue;
     }
 
-    rows.push({ stn_id, obs_cd, label });
+    rows.push({ stn_id, obs_cd, label, name });
   }
 
   return { rows, skipped };
@@ -55,9 +60,31 @@ async function main() {
   const adapter = new PrismaPg(databaseUrl as string);
   const prisma = new PrismaClient({ adapter });
 
+  // station_variable.stn_id와 연결되도록 KIOST 관측소를 station에 먼저 upsert한다.
+  const stations = new Map<string, string>();
+  for (const { stn_id, name } of rows) {
+    if (!stations.has(stn_id)) stations.set(stn_id, name || stn_id);
+  }
+
   let processed = 0;
   const BATCH = 50;
   try {
+    await Promise.all(
+      [...stations].map(([stn_id, name]) =>
+        prisma.station.upsert({
+          where: { stn_id },
+          update: { name },
+          create: {
+            stn_id,
+            name,
+            organization_cd: Organization.KIOST,
+            stn_type: StationType.ORS,
+          },
+        }),
+      ),
+    );
+    console.log(`[seed-kors] upserted ${stations.size} stations`);
+
     for (let i = 0; i < rows.length; i += BATCH) {
       const batch = rows.slice(i, i + BATCH);
       await Promise.all(

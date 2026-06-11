@@ -21,6 +21,7 @@ enum StationType {
 enum Organization {
   KHOA
   KMA
+  KIOST
 }
 
 model Station {
@@ -58,6 +59,7 @@ model StationVariable {
   obs_cd     String
   label      String
   unit       String
+  is_enabled Boolean  @default(true)
   updated_at DateTime @updatedAt
 
   @@unique([stn_id, obs_cd])
