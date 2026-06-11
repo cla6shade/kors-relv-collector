@@ -104,7 +104,7 @@ async function loadSource(src: Source, hours: number): Promise<StationBucket[]> 
   const rows = cfg.type
     ? await prisma.$queryRaw<Row[]>`
         SELECT s.stn_id, s.name, s.lat, s.lon, o.obs_cd, o.obs_time, o.value, o.unit
-        FROM observation o
+        FROM observation_data o
         JOIN station s ON s.stn_id = o.stn_id
         WHERE o.obs_time >= ${since}
           AND s.organization_cd::text = ${cfg.org}
@@ -113,7 +113,7 @@ async function loadSource(src: Source, hours: number): Promise<StationBucket[]> 
       `
     : await prisma.$queryRaw<Row[]>`
         SELECT s.stn_id, s.name, s.lat, s.lon, o.obs_cd, o.obs_time, o.value, o.unit
-        FROM observation o
+        FROM observation_data o
         JOIN station s ON s.stn_id = o.stn_id
         WHERE o.obs_time >= ${since}
           AND s.organization_cd::text = ${cfg.org}
@@ -153,7 +153,7 @@ async function loadTotals() {
     prisma.observation.findFirst({ orderBy: { obs_time: "desc" }, select: { obs_time: true } }),
     prisma.$queryRaw<Array<{ organization_cd: string; count: bigint }>>`
       SELECT s.organization_cd::text AS organization_cd, COUNT(*)::bigint AS count
-      FROM observation o
+      FROM observation_data o
       JOIN station s ON s.stn_id = o.stn_id
       GROUP BY s.organization_cd
       ORDER BY s.organization_cd
@@ -161,7 +161,7 @@ async function loadTotals() {
     prisma.$queryRaw<Array<{ db_bytes: bigint; obs_bytes: bigint }>>`
       SELECT
         pg_database_size(current_database())::bigint AS db_bytes,
-        pg_total_relation_size('observation')::bigint AS obs_bytes
+        pg_total_relation_size('observation_data')::bigint AS obs_bytes
     `,
   ]);
   const dbBytes = Number(sizeRows[0]?.db_bytes ?? 0n);

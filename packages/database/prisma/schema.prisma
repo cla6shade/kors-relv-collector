@@ -39,16 +39,17 @@ model Station {
 }
 
 model Observation {
+  id              Int       @id @default(autoincrement())
   stn_id          String
-  obs_cd          String  
+  obs_cd          String
   obs_time        DateTime  @db.Timestamptz(6)
   value           Float
   unit            String
   station         Station   @relation(fields: [stn_id], references: [stn_id])
 
-  @@id([stn_id, obs_cd, obs_time])
+  @@unique([stn_id, obs_cd, obs_time])
   @@index([obs_cd, obs_time])
-  @@map("observation")
+  @@map("observation_data")
 }
 
 model StationVariable {
