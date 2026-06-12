@@ -40,6 +40,7 @@ export function unwrapKhoa<T>(json: unknown): T[] {
 }
 
 export interface KmaSeaRow {
+  TP?: string;
   STN_ID: string;
   STN_KO?: string;
   TM: string;
@@ -98,6 +99,7 @@ export function parseKmaSea(text: string): KmaSeaRow[] {
     if (!map["STN_ID"] || !map["TM"]) continue;
 
     const row: Partial<KmaSeaRow> = {
+      TP: map["TP"] || undefined,
       STN_ID: map["STN_ID"],
       STN_KO: map["STN_KO"] || undefined,
       TM: map["TM"],
