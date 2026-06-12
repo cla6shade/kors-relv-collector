@@ -9,6 +9,7 @@ datasource db {
 
 enum StationType {
   BUOY
+  DRIFT_BUOY
   TIDAL
   COASTAL
   FISHING
@@ -33,6 +34,7 @@ model Station {
   lon             Float?
   created_at      DateTime      @default(now())
   observations    Observation[]
+  drift_positions BuoyDriftPosition[]
 
   @@index([stn_type])
   @@index([organization_cd])
@@ -51,6 +53,19 @@ model Observation {
   @@unique([stn_id, obs_cd, obs_time])
   @@index([obs_cd, obs_time])
   @@map("observation_data")
+}
+
+model BuoyDriftPosition {
+  id       Int      @id @default(autoincrement())
+  stn_id   String
+  obs_time DateTime @db.Timestamptz(6)
+  lat      Float
+  lon      Float
+  station  Station  @relation(fields: [stn_id], references: [stn_id])
+
+  @@unique([stn_id, obs_time])
+  @@index([stn_id, obs_time])
+  @@map("buoy_drift_position")
 }
 
 model StationVariable {
