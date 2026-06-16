@@ -1,7 +1,7 @@
-import "dotenv/config";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import dotenv from "dotenv";
 import { parse } from "csv-parse/sync";
 import { PrismaPg } from "@prisma/adapter-pg";
 import {
@@ -11,6 +11,8 @@ import {
 } from "../src/generated/prisma/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+// 환경변수는 packages/database/.env 에서 로드한다.
+dotenv.config({ path: resolve(__dirname, "../.env") });
 const CSV_PATH = join(__dirname, "kors-variables.csv");
 
 const isProd = process.argv.includes("--prod");
