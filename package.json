@@ -13,7 +13,6 @@
     "db:generate": "pnpm --filter @kors-relv/database prisma generate",
     "db:migrate": "pnpm --filter @kors-relv/database prisma migrate dev",
     "db:migrate:deploy": "pnpm --filter @kors-relv/database migrate:deploy",
-    "db:reset-station-variable-seq": "pnpm --filter @kors-relv/database reset:station-variable-seq",
     "typecheck": "pnpm -r typecheck"
   },
   "devDependencies": {

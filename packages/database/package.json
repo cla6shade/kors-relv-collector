@@ -12,8 +12,7 @@
     "typecheck": "tsc --noEmit",
     "prisma": "prisma",
     "migrate:deploy": "prisma migrate deploy",
-    "seed:kors": "tsx scripts/seed-kors.ts",
-    "reset:station-variable-seq": "tsx scripts/reset-station-variable-seq.ts"
+    "seed:kors": "tsx scripts/seed-kors.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.7.0",
