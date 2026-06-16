@@ -9,12 +9,13 @@ datasource db {
 
 enum StationType {
   BUOY
+  WAVE_BUOY
   DRIFT_BUOY
   TIDAL
   COASTAL
-  FISHING
-  SPECIAL
+  WEATHER_SHIP
   LIGHTHOUSE
+  WAVE_GAUGE
   MARINE
   ORS
 }

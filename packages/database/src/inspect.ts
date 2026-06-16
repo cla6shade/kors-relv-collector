@@ -20,7 +20,18 @@ async function main() {
   for (const r of byOrg) console.log(" ", r.organization_cd, r._count._all);
 
   console.log("\nsample stations per type:");
-  for (const t of ["BUOY", "TIDAL", "MARINE", "COASTAL", "FISHING", "LIGHTHOUSE", "SPECIAL"] as const) {
+  for (const t of [
+    "BUOY",
+    "WAVE_BUOY",
+    "DRIFT_BUOY",
+    "TIDAL",
+    "COASTAL",
+    "WEATHER_SHIP",
+    "LIGHTHOUSE",
+    "WAVE_GAUGE",
+    "MARINE",
+    "ORS",
+  ] as const) {
     const rows = await prisma.station.findMany({
       where: { stn_type: t as never },
       take: 3,
